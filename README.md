@@ -7,3 +7,4 @@ can i fit in one hundred lines or less?
 - `templater.js` pre-render your webpages server side
 - `data.js` easily extendible database
 - `simple.css` css styling for minimal sites
+- `chat.js` chat server; connect with netcat. somewhat buggy

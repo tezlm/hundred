@@ -23,16 +23,16 @@ class Templater {
 		this.templates.set(name, compile(fs.readFileSync(file, "utf8")));
 	}
 
-	render(name, data, stream) {
-		stream.writeHead(200, { "Content-Type": "text/html" });
+	render(name, data, res) {
+		res.writeHead(200, { "Content-Type": "text/html" });
 		for (let part of this.templates.get(name)) {
 			if (part[0] === "fmt") {
-				stream.write(data[part[1]] || "");
+				res.write(data[part[1]] || "");
 			} else {
-				stream.write(part[1]);
+				res.write(part[1]);
 			}
 		}
-		stream.end();
+		res.end();
 	}
 }
 
