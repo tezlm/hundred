@@ -23,17 +23,13 @@ types.set("double", {
 [16, 32, 64, 128, 256].forEach(i => {
 	types.set("str" + i, {
 		read: (buf) => buf.slice(1, buf.readUInt8() + 1).toString(),
-		write: (buf, data) => {
-			buf.writeUInt8(data.length)
-			Buffer.from(data).copy(buf, 1);
-		}, size: i,
+		write: (buf, data) => buf.writeUInt8(data.length) && Buffer.from(data).copy(buf, 1),
+		size: i,
 	});
 	types.set("buf" + i, {
 		read: (buf) => buf.slice(1, buf.readUInt8() + 1),
-		write: (buf, data) => {
-			buf.writeUInt8(data.length)
-			data.copy(buf, 1);
-		}, size: i,
+		write: (buf, data) => buf.writeUInt8(data.length) && data.copy(buf, 1),
+		size: i,
 	});
 });
 
@@ -49,45 +45,54 @@ class Database {
 		this.scheme = scheme;
 	}
 
-	find(call) {
-		const buf = Buffer.alloc(this.blockSize + 4);
+	find(id) {
 		let position = 0;
+		const buf = Buffer.alloc(4);
 		while(fs.readSync(this.fd, buf, { position })) {
-			if(call(this.unpack(buf))) return buf.readUInt8();
+			if(buf.readUInt32BE() === id) return position;
 			position += this.blockSize + 4;
 		}
+		return position;
 	}
 
 	unpack(buf) {
 		const data = [buf.readUInt32BE()];
-		let offset = 4;
-		for(let i of this.scheme) {
-			const type = types.get(i);
-			data.push(type.read(buf.slice(offset, offset += type.size)));
+		let pos = 4;
+		for(let i = 0; i < this.scheme.length; i++) {
+			const type = types.get(this.scheme[i]);
+			data.push(type.read(buf.slice(pos, pos + type.size)));
+			pos += type.size;
 		}
 		return data;
 	}
 
-	each(call) { this.find(row => { call(row) }) }
-	seek(id) { this.find(data => data[0] === id) }
-	
 	set(id, ...data) {
-		const position = this.seek(id);
+		const position = this.find(id);
 		const buf = Buffer.alloc(this.blockSize + 4);
-		let offset = 4;
+		let pos = 4;
 		buf.writeUInt32BE(id);
-		for(let i = 0; i < this.scheme.length; i++) {
+		for(let i = 0; i < data.length; i++) {
 			const type = types.get(this.scheme[i]);
-			const slice = buf.slice(offset, offset += type.size);
-			type.write(slice, data[i]);
+			type.write(buf.slice(pos, pos + type.size), data[i]);
+			pos += type.size;
 		}
-		fs.writeSync(this.fd, buf, position);
+		fs.writeSync(this.fd, buf, 0, { position });
 	}
 
 	get(id) {
-		const buf = Buffer.alloc(this.blockSize);
-		if(!fs.readSync(this.fd, buf, { position: this.seek(id) })) return null;
+		const position = this.find(id);
+		const buf = Buffer.alloc(this.blockSize + 4);
+		if(!fs.readSync(this.fd, buf, { position })) return null;
 		return this.unpack(buf);
+	}
+
+	each(call) {
+		let position = 0;
+		const buf = Buffer.alloc(this.blockSize + 4);
+		while(fs.readSync(this.fd, buf, { position })) {
+			call(this.unpack(buf));
+			position += this.blockSize + 4;
+		}
 	}
 }
 
