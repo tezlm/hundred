@@ -7,12 +7,11 @@ const normal = (...p) => path.resolve(path.join(...p));
 function prepare(route) {
 	const parts = [""];
 	for (let i of route) {
-		if (i === ":" || i === "/") {
-			parts.push(i);
-		} else if (i === "*") {
-			parts.push(i, "");
-		} else {
-			parts[parts.length - 1] += i;
+		switch(i) {
+			case ":": 
+			case "/": parts.push(i); break;
+			case "*": parts.push(i, ""); break;
+			default: parts[parts.length - 1] += i; break;
 		}
 	}
 	return parts.filter((i) => i);
@@ -26,13 +25,14 @@ function parse(route, url) {
 			index = index < 0 ? url.length : index;
 			data.path.push(url.slice(0, index));
 			url = url.slice(index);
-			continue;
 		} else if (i[0] === ":") {
-			data[i.slice(1)] = url.slice(0, i.length);
-		} else if (url.slice(0, i.length) !== i) {
-			return null;
-		}
-		url = url.slice(i.length);
+			pos = url.match(/[^/:]+/i)
+			if(!pos) return null;
+			data[i.slice(1)] = pos[0]
+			url.slice(0, pos[0].length);
+		} else if (url.slice(0, i.length) === i) {
+			url = url.slice(i.length);
+		} else return null; 
 	}
 	return data;
 }
