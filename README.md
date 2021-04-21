@@ -15,4 +15,5 @@ first.
 - `chat.js` chat server; connect with netcat. somewhat buggy
 - `request.js` async wrapper for http
 - `process.js` sed-like batch text editor
+- `tokenize.js` a string tokenizer (numbers, strings, and "words")
 
