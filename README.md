@@ -18,3 +18,4 @@ first.
 - `tokenize.js` a string tokenizer (numbers, strings, and "words")
 - `tictactoe.js` (deno) two player tic-tac-toe game
 - `xml.js` xml/html parser
+- `p2p.js` sample p2p protocol implementation
