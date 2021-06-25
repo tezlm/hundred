@@ -34,6 +34,7 @@ function parse(route, url) {
 			url = url.slice(i.length);
 		} else return null; 
 	}
+	if(url.length) return null;
 	return data;
 }
 
@@ -91,7 +92,6 @@ class Server extends http.Server {
 		js: "text/javascript",
 		json: "application/json",
 		png: "image/png",
-		jpg: "image/jpeg",
 		jpeg: "image/jpeg",
 	};
 }

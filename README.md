@@ -1,12 +1,12 @@
 # hundred
 
-a coding challenge i made for myself; how much
-can i fit in one hundred lines or less?
+a coding challenge i made for myself; how much can i fit in one hundred
+lines or less?
 
-i'll try to keep these understandable and not
-mangle/minify them. if you want to use them,
-you probrably should edit them to your liking
-first.
+i'll try to keep these understandable and not mangle/minify them. if
+you want to use them, you probrably should edit them to your liking
+first. **note: many of these are buggy. please double check before
+using them**
 
 - `server.js` basic http server based off of express
 - `templater.js` pre-render your webpages server side
@@ -19,3 +19,5 @@ first.
 - `tictactoe.js` (deno) two player tic-tac-toe game
 - `xml.js` xml/html parser
 - `p2p.js` sample p2p protocol implementation
+- `canvas.js` a terminal canvas emulator with many, many known bugs
+- `input.js` simple terminal raw input
